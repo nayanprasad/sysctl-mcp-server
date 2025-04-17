@@ -5,8 +5,10 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "inspector": "npx @modelcontextprotocol/inspector node src/index.js"
+    "start": "node dist/index.js",
+    "build": "tsc -p .",
+    "watch": "tsc --watch",
+    "inspector": "pnpm run build && npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +20,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/node": "^22.14.1",
     "prettier": "^3.5.3"
   }
 }

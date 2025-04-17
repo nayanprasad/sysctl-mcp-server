@@ -1,10 +1,11 @@
 import os from "os";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { RamUsage, Response } from "./types.js";
 
 const execAsync = promisify(exec);
 
-export const getRamUsage = async () => {
+export const getRamUsage = (): RamUsage => {
   const totalMem = os.totalmem();
   const freeMem = os.freemem();
   const usedMem = totalMem - freeMem;
@@ -29,7 +30,7 @@ export const getRamUsage = async () => {
   };
 };
 
-export const getProcessByPort = async (port) => {
+export const getProcessByPort = async (port: number) => {
   try {
     let processInfo = {};
 
@@ -105,15 +106,22 @@ export const getProcessByPort = async (port) => {
       : {
           error: `Could not retrieve complete information for process on port ${port}`,
         };
-  } catch (error) {
+  } catch (error: unknown) {
     return {
-      error: `Failed to get process information: ${error.message}`,
-      details: error.toString(),
+      // @ts-ignore --> TypeScript doesn't know about the error type
+      error: `Failed to get process information: ${error?.message}`,
+      details: error?.toString(),
     };
   }
 };
 
-export const killProcessByPort = async ({ port, force }) => {
+export const killProcessByPort = async ({
+  port,
+  force = false,
+}: {
+  port: number;
+  force?: boolean;
+}): Promise<Response> => {
   try {
     let pid;
 
@@ -188,7 +196,7 @@ export const killProcessByPort = async ({ port, force }) => {
         return {
           success: false,
           error: `Process with PID ${pid} on port ${port} could not be terminated gracefully. Try using force option.`,
-          suggestion: "Retry with force=true parameter",
+          suggestions: ["Retry with force=true parameter"],
         };
       }
     } catch (e) {
@@ -201,8 +209,9 @@ export const killProcessByPort = async ({ port, force }) => {
   } catch (error) {
     return {
       success: false,
-      error: `Failed to kill process: ${error.message}`,
-      details: error.toString(),
+      // @ts-ignore --> TypeScript doesn't know about the error type
+      error: `Failed to kill process: ${error?.message}`,
+      message: error?.toString(),
     };
   }
 };
